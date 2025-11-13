@@ -1,5 +1,3 @@
-# Key Pair Module - Creates EC2 Key Pair and stores in Secrets Manager
-
 resource "tls_private_key" "ssh" {
   algorithm = "RSA"
   rsa_bits  = 4096

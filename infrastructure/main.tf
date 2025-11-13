@@ -1,7 +1,3 @@
-# Main Infrastructure Configuration
-# This file ties together all the modules
-
-# Key Pair Module
 module "key_pair" {
   source = "../terraform-modules/key-pair"
 
@@ -9,7 +5,6 @@ module "key_pair" {
   environment  = var.environment
 }
 
-# Networking Module
 module "networking" {
   source = "../terraform-modules/networking"
 
@@ -21,7 +16,6 @@ module "networking" {
   availability_zones   = var.availability_zones
 }
 
-# Security Groups Module
 module "security_groups" {
   source = "../terraform-modules/security-groups"
 
@@ -33,7 +27,6 @@ module "security_groups" {
   depends_on = [module.networking]
 }
 
-# Compute Module
 module "compute" {
   source = "../terraform-modules/compute"
 
@@ -41,14 +34,13 @@ module "compute" {
   environment       = var.environment
   instance_count    = var.instance_count
   instance_type     = var.instance_type
-  subnet_ids        = module.networking.private_subnet_ids  # Web servers in PRIVATE subnets
+  subnet_ids        = module.networking.private_subnet_ids
   security_group_id = module.security_groups.web_servers_security_group_id
   key_name          = module.key_pair.key_pair_name
 
   depends_on = [module.security_groups, module.key_pair]
 }
 
-# Load Balancer Module
 module "load_balancer" {
   source = "../terraform-modules/load-balancer"
 

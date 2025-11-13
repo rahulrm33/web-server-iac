@@ -1,6 +1,3 @@
-# Bootstrap Module - Creates S3 Bucket and DynamoDB Table for Terraform State
-# This module uses LOCAL state initially, then you migrate to remote state
-
 terraform {
   required_version = ">= 1.5.0"
   
@@ -11,8 +8,6 @@ terraform {
     }
   }
   
-  # IMPORTANT: Uses local backend initially
-  # After creation, migrate to remote backend
   backend "local" {
     path = "terraform.tfstate"
   }
@@ -31,13 +26,11 @@ provider "aws" {
   }
 }
 
-# S3 Bucket for Terraform State
 resource "aws_s3_bucket" "terraform_state" {
   bucket = "${var.project_name}-terraform-state-${var.environment}"
 
-  # Prevent accidental deletion
   lifecycle {
-    prevent_destroy = false # Set to true in production
+    prevent_destroy = false
   }
 
   tags = {
@@ -46,7 +39,6 @@ resource "aws_s3_bucket" "terraform_state" {
   }
 }
 
-# Enable versioning for state file history
 resource "aws_s3_bucket_versioning" "terraform_state" {
   bucket = aws_s3_bucket.terraform_state.id
 
@@ -55,7 +47,6 @@ resource "aws_s3_bucket_versioning" "terraform_state" {
   }
 }
 
-# Enable encryption at rest
 resource "aws_s3_bucket_server_side_encryption_configuration" "terraform_state" {
   bucket = aws_s3_bucket.terraform_state.id
 
@@ -66,7 +57,6 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "terraform_state" 
   }
 }
 
-# Block all public access
 resource "aws_s3_bucket_public_access_block" "terraform_state" {
   bucket = aws_s3_bucket.terraform_state.id
 
@@ -76,18 +66,9 @@ resource "aws_s3_bucket_public_access_block" "terraform_state" {
   restrict_public_buckets = true
 }
 
-# Optional: Enable bucket logging (recommended for production)
-# Uncomment if you have a separate logging bucket
-# resource "aws_s3_bucket_logging" "terraform_state" {
-#   bucket = aws_s3_bucket.terraform_state.id
-#   target_bucket = var.logging_bucket
-#   target_prefix = "terraform-state-logs/"
-# }
-
-# DynamoDB Table for State Locking
 resource "aws_dynamodb_table" "terraform_locks" {
   name         = "${var.project_name}-terraform-locks-${var.environment}"
-  billing_mode = "PAY_PER_REQUEST" # On-demand pricing, cost-effective for low usage
+  billing_mode = "PAY_PER_REQUEST"
   hash_key     = "LockID"
 
   attribute {
@@ -95,12 +76,10 @@ resource "aws_dynamodb_table" "terraform_locks" {
     type = "S"
   }
 
-  # Enable point-in-time recovery (recommended for production)
   point_in_time_recovery {
     enabled = var.enable_point_in_time_recovery
   }
 
-  # Enable encryption at rest
   server_side_encryption {
     enabled = true
   }
@@ -111,11 +90,10 @@ resource "aws_dynamodb_table" "terraform_locks" {
   }
 
   lifecycle {
-    prevent_destroy = false # Set to true in production
+    prevent_destroy = false
   }
 }
 
-# Optional: CloudWatch alarms for monitoring (recommended)
 resource "aws_cloudwatch_metric_alarm" "dynamodb_throttle" {
   count = var.enable_monitoring ? 1 : 0
 

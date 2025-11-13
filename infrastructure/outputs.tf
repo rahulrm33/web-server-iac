@@ -1,6 +1,3 @@
-# Infrastructure Outputs
-
-# Networking Outputs
 output "vpc_id" {
   description = "VPC ID"
   value       = module.networking.vpc_id
@@ -21,7 +18,6 @@ output "nat_gateway_ips" {
   value       = module.networking.nat_eip_addresses
 }
 
-# Compute Outputs
 output "web_server_instance_ids" {
   description = "Web server instance IDs"
   value       = module.compute.instance_ids
@@ -37,7 +33,6 @@ output "web_server_public_ips" {
   value       = module.compute.instance_public_ips
 }
 
-# Load Balancer Outputs
 output "load_balancer_dns" {
   description = "Load Balancer DNS name - Use this URL to access your application"
   value       = "http://${module.load_balancer.alb_dns_name}"
@@ -53,7 +48,6 @@ output "target_group_arn" {
   value       = module.load_balancer.target_group_arn
 }
 
-# Summary Output
 output "deployment_summary" {
   description = "Deployment summary"
   value = {

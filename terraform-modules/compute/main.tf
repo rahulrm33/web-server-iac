@@ -1,5 +1,3 @@
-# Compute Module - EC2 Instances with Nginx
-
 data "aws_ami" "amazon_linux_2023" {
   most_recent = true
   owners      = ["amazon"]
@@ -22,26 +20,12 @@ set -x
 exec > >(tee /var/log/user-data.log)
 exec 2>&1
 
-echo "=== Starting user data script at $(date) ==="
-
-# Update system
-echo "Updating system..."
 yum update -y
-
-# Install nginx
-echo "Installing nginx..."
 yum install -y nginx
-
-# Start and enable nginx
-echo "Starting nginx..."
 systemctl start nginx
 systemctl enable nginx
-
-echo "Checking nginx status..."
 systemctl status nginx
 
-# Fetch instance metadata using IMDSv2
-echo "Fetching instance metadata..."
 TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600" 2>/dev/null)
 INSTANCE_ID=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/instance-id 2>/dev/null)
 AVAILABILITY_ZONE=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/placement/availability-zone 2>/dev/null)
@@ -49,11 +33,6 @@ PRIVATE_IP=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/l
 INSTANCE_TYPE=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/instance-type 2>/dev/null)
 HOSTNAME=$(hostname)
 
-echo "Instance ID: $INSTANCE_ID"
-echo "AZ: $AVAILABILITY_ZONE"
-echo "Private IP: $PRIVATE_IP"
-
-# Create unique HTML page with instance-specific information
 cat > /usr/share/nginx/html/index.html <<HTML
 <!DOCTYPE html>
 <html>
@@ -182,12 +161,9 @@ cat > /usr/share/nginx/html/index.html <<HTML
 </body>
 </html>
 HTML
-
-echo "=== User data script completed successfully at $(date) ==="
   EOF
 }
 
-# EC2 Instances
 resource "aws_instance" "web_servers" {
   count                  = var.instance_count
   ami                    = data.aws_ami.amazon_linux_2023.id

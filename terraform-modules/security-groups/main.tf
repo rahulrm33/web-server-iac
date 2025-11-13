@@ -1,6 +1,3 @@
-# Security Groups Module
-
-# Security Group for Load Balancer
 resource "aws_security_group" "alb" {
   name_prefix = "${var.project_name}-alb-sg-${var.environment}-"
   description = "Security group for Application Load Balancer"
@@ -41,7 +38,6 @@ resource "aws_security_group" "alb" {
   }
 }
 
-# Security Group for Web Servers
 resource "aws_security_group" "web_servers" {
   name_prefix = "${var.project_name}-web-sg-${var.environment}-"
   description = "Security group for web servers"

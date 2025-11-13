@@ -1,6 +1,3 @@
-# Dev Environment Root Terragrunt Configuration
-
-# Include all shared configurations
 include "root" {
   path = find_in_parent_folders("root.hcl")
 }
@@ -9,7 +6,6 @@ include "region" {
   path = find_in_parent_folders("region.hcl")
 }
 
-# Load environment-specific variables from env.hcl (minimal - only local vars!)
 locals {
   env_vars = read_terragrunt_config("${get_terragrunt_dir()}/env.hcl")
 }
@@ -19,7 +15,6 @@ terraform {
 }
 
 inputs = {
-  # Pass all environment variables as inputs
   environment                = local.env_vars.locals.environment
   project_name               = local.env_vars.locals.project_name
   aws_region                 = local.env_vars.locals.aws_region
