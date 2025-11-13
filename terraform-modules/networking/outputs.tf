@@ -18,3 +18,18 @@ output "internet_gateway_id" {
   value       = aws_internet_gateway.main.id
 }
 
+output "private_subnet_ids" {
+  description = "IDs of private subnets"
+  value       = aws_subnet.private[*].id
+}
+
+output "nat_gateway_ids" {
+  description = "IDs of NAT Gateways"
+  value       = aws_nat_gateway.main[*].id
+}
+
+output "nat_eip_addresses" {
+  description = "Elastic IP addresses of NAT Gateways"
+  value       = aws_eip.nat[*].public_ip
+}
+

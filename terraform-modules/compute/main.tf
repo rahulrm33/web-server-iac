@@ -1,6 +1,5 @@
 # Compute Module - EC2 Instances with Nginx
 
-# Data source to get latest Amazon Linux 2023 AMI
 data "aws_ami" "amazon_linux_2023" {
   most_recent = true
   owners      = ["amazon"]
@@ -16,7 +15,6 @@ data "aws_ami" "amazon_linux_2023" {
   }
 }
 
-# User data script to install and configure nginx
 locals {
   user_data_template = <<-EOF
 #!/bin/bash
@@ -42,16 +40,29 @@ systemctl enable nginx
 echo "Checking nginx status..."
 systemctl status nginx
 
-# Create simple test page
-cat > /usr/share/nginx/html/index.html <<'HTML'
+# Fetch instance metadata using IMDSv2
+echo "Fetching instance metadata..."
+TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600" 2>/dev/null)
+INSTANCE_ID=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/instance-id 2>/dev/null)
+AVAILABILITY_ZONE=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/placement/availability-zone 2>/dev/null)
+PRIVATE_IP=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/local-ipv4 2>/dev/null)
+INSTANCE_TYPE=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/instance-type 2>/dev/null)
+HOSTNAME=$(hostname)
+
+echo "Instance ID: $INSTANCE_ID"
+echo "AZ: $AVAILABILITY_ZONE"
+echo "Private IP: $PRIVATE_IP"
+
+# Create unique HTML page with instance-specific information
+cat > /usr/share/nginx/html/index.html <<HTML
 <!DOCTYPE html>
 <html>
 <head>
     <title>Hello World - Load Balanced Web Server</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
             margin: 50px auto;
             padding: 20px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -59,31 +70,114 @@ cat > /usr/share/nginx/html/index.html <<'HTML'
         }
         .container {
             background: rgba(255, 255, 255, 0.1);
-            padding: 30px;
-            border-radius: 10px;
+            padding: 40px;
+            border-radius: 15px;
             backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
         }
         h1 {
             font-size: 3em;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .subtitle {
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
         }
         .info {
-            background: rgba(0, 0, 0, 0.2);
+            background: rgba(0, 0, 0, 0.3);
             padding: 15px;
-            border-radius: 5px;
-            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #ffd700;
+        }
+        .info-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+        .info-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            word-break: break-all;
+        }
+        .highlight {
+            background: rgba(255, 215, 0, 0.2);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            border: 2px solid #ffd700;
+        }
+        .status {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #10b981;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            opacity: 0.7;
+            font-size: 0.9em;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎉 Hello World! 🎉</h1>
-        <p><strong>Load-balanced Nginx Web Server</strong></p>
-        <div class="info">
-            <p><strong>Environment:</strong> ${var.environment}</p>
-            <p><strong>Project:</strong> ${var.project_name}</p>
+        <h1>Hello World!</h1>
+        <p class="subtitle">Load-Balanced Nginx Web Server</p>
+        
+        <div class="highlight">
+            <h2 style="margin: 0;">Server: $HOSTNAME</h2>
+            <div class="status">HEALTHY &amp; RESPONDING</div>
         </div>
-        <p>✅ This server is healthy and responding to requests!</p>
+
+        <div class="info-grid">
+            <div class="info">
+                <div class="info-label">Instance ID</div>
+                <div class="info-value">$INSTANCE_ID</div>
+            </div>
+            
+            <div class="info">
+                <div class="info-label">Availability Zone</div>
+                <div class="info-value">$AVAILABILITY_ZONE</div>
+            </div>
+            
+            <div class="info">
+                <div class="info-label">Private IP</div>
+                <div class="info-value">$PRIVATE_IP</div>
+            </div>
+            
+            <div class="info">
+                <div class="info-label">Instance Type</div>
+                <div class="info-value">$INSTANCE_TYPE</div>
+            </div>
+            
+            <div class="info">
+                <div class="info-label">Environment</div>
+                <div class="info-value">${var.environment}</div>
+            </div>
+            
+            <div class="info">
+                <div class="info-label">Project</div>
+                <div class="info-value">${var.project_name}</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Refresh this page to see load balancing in action!</p>
+            <p>Request served at: <strong>$(date)</strong></p>
+        </div>
     </div>
 </body>
 </html>
@@ -106,7 +200,7 @@ resource "aws_instance" "web_servers" {
 
   root_block_device {
     volume_type           = "gp3"
-    volume_size           = 30  # Increased from 8GB to 30GB (AMI snapshot requires minimum 30GB)
+    volume_size           = 30
     delete_on_termination = true
     encrypted             = true
   }

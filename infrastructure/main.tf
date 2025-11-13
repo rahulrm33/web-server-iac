@@ -17,6 +17,7 @@ module "networking" {
   environment          = var.environment
   vpc_cidr             = var.vpc_cidr
   public_subnet_cidrs  = var.public_subnet_cidrs
+  private_subnet_cidrs = var.private_subnet_cidrs
   availability_zones   = var.availability_zones
 }
 
@@ -40,7 +41,7 @@ module "compute" {
   environment       = var.environment
   instance_count    = var.instance_count
   instance_type     = var.instance_type
-  subnet_ids        = module.networking.public_subnet_ids
+  subnet_ids        = module.networking.private_subnet_ids  # Web servers in PRIVATE subnets
   security_group_id = module.security_groups.web_servers_security_group_id
   key_name          = module.key_pair.key_pair_name
 

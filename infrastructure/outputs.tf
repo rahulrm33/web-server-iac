@@ -7,8 +7,18 @@ output "vpc_id" {
 }
 
 output "public_subnet_ids" {
-  description = "Public subnet IDs"
+  description = "Public subnet IDs (ALB and NAT Gateways)"
   value       = module.networking.public_subnet_ids
+}
+
+output "private_subnet_ids" {
+  description = "Private subnet IDs (Web Servers)"
+  value       = module.networking.private_subnet_ids
+}
+
+output "nat_gateway_ips" {
+  description = "NAT Gateway Elastic IP addresses"
+  value       = module.networking.nat_eip_addresses
 }
 
 # Compute Outputs

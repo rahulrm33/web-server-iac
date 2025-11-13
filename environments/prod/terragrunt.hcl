@@ -2,7 +2,7 @@
 
 # Include all shared configurations
 include "root" {
-  path = find_in_parent_folders("terragrunt.hcl")
+  path = find_in_parent_folders("root.hcl")
 }
 
 include "region" {
@@ -25,6 +25,7 @@ inputs = {
   aws_region                 = local.env_vars.locals.aws_region
   vpc_cidr                   = local.env_vars.locals.vpc_cidr
   public_subnet_cidrs        = local.env_vars.locals.public_subnet_cidrs
+  private_subnet_cidrs       = local.env_vars.locals.private_subnet_cidrs
   availability_zones         = local.env_vars.locals.availability_zones
   instance_count             = local.env_vars.locals.instance_count
   instance_type              = local.env_vars.locals.instance_type

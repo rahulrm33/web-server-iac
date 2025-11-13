@@ -1,5 +1,3 @@
-# Key Pair Module Outputs
-
 output "key_pair_name" {
   description = "Name of the created EC2 key pair"
   value       = aws_key_pair.main.key_name

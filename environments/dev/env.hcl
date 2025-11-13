@@ -7,7 +7,8 @@ locals {
   
   # Network Configuration
   vpc_cidr             = "10.0.0.0/16"
-  public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24"]
+  public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24"]       # For ALB and NAT Gateways
+  private_subnet_cidrs = ["10.0.10.0/24", "10.0.11.0/24"]     # For web servers
   availability_zones   = ["us-west-2a", "us-west-2b"]
   
   # Compute Configuration

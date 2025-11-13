@@ -25,8 +25,8 @@ locals {
     prod-eu = {
       state_bucket   = "web-loadbalancer-terraform-state-prod"  # SAME bucket!
       locks_table    = "web-loadbalancer-terraform-locks-prod"   # SAME table!
-      state_region   = "eu-west-2"
-      state_key_dir  = "eu-west-2"  # Different directory
+      state_region   = "us-east-1"  # Bucket region (NOT infrastructure region!)
+      state_key_dir  = "eu-west-2"  # Different directory within bucket
     }
   }
 
