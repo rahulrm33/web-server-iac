@@ -1,0 +1,169 @@
+# Infrastructure as Code - Load Balancer Project
+# Tool Requirements and Versions
+
+## Required Tools
+
+### 1. Terraform
+Version: >= 1.5.0
+Purpose: Infrastructure as Code core engine
+Download: https://www.terraform.io/downloads
+Install (macOS): brew install terraform
+Install (Linux): wget https://releases.hashicorp.com/terraform/1.5.0/terraform_1.5.0_linux_amd64.zip
+
+### 2. Terragrunt
+Version: >= 0.45.0
+Purpose: Terraform wrapper for multi-environment management
+Download: https://terragrunt.gruntwork.io/docs/getting-started/install/
+Install (macOS): brew install terragrunt
+Install (Linux): wget https://github.com/gruntwork-io/terragrunt/releases/download/v0.45.0/terragrunt_linux_amd64
+
+### 3. AWS CLI
+Version: >= 2.0
+Purpose: AWS resource management and configuration
+Download: https://aws.amazon.com/cli/
+Install (macOS): brew install awscli
+Install (Linux): curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+
+### 4. jq
+Version: >= 1.6
+Purpose: JSON parsing in shell scripts
+Install (macOS): brew install jq
+Install (Linux/Debian): sudo apt-get install jq
+Install (Linux/RHEL): sudo yum install jq
+
+### 5. Git
+Version: >= 2.0
+Purpose: Version control
+Install (macOS): brew install git
+Install (Linux): sudo apt-get install git (Debian/Ubuntu)
+
+## Optional Tools (Recommended)
+
+### 6. pre-commit
+Purpose: Git hooks for code quality
+Install: pip install pre-commit
+
+### 7. tfsec
+Purpose: Terraform security scanner
+Install (macOS): brew install tfsec
+Install (Linux): curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
+
+### 8. terraform-docs
+Purpose: Generate documentation from Terraform modules
+Install (macOS): brew install terraform-docs
+
+### 9. Infracost
+Purpose: Cloud cost estimation
+Install: brew install infracost
+
+## AWS Requirements
+
+### IAM Permissions Required
+- EC2 Full Access (ec2:*)
+- VPC Full Access (ec2:*Vpc*, ec2:*Subnet*, etc.)
+- Elastic Load Balancing Full Access (elasticloadbalancing:*)
+- S3 Full Access (s3:*)
+- DynamoDB Full Access (dynamodb:*)
+
+### AWS Account
+- Active AWS account with billing enabled
+- Credit card on file
+- Service quotas sufficient for:
+  - VPCs: 1 per environment
+  - EC2 instances: 2-3 per environment
+  - Load Balancers: 1 per environment
+  - Elastic IPs: 2-3 per environment
+
+### Cost Estimate
+- Development: ~$15-20/month (running 24/7)
+- Staging: ~$20-30/month
+- Production: ~$40-60/month
+- NOTE: Destroy resources when not in use to minimize costs
+
+## Verification Commands
+
+# Check all required tools are installed
+terraform --version
+terragrunt --version
+aws --version
+jq --version
+git --version
+
+# Check AWS credentials
+aws sts get-caller-identity
+
+# Check AWS region is set
+aws configure get region
+
+## System Requirements
+
+### Operating System
+- macOS 10.15+ (Catalina or later)
+- Linux (Ubuntu 20.04+, CentOS 8+, Amazon Linux 2)
+- Windows 10+ with WSL2 (Ubuntu recommended)
+
+### Hardware
+- RAM: 4 GB minimum, 8 GB recommended
+- Disk Space: 1 GB for tools, 5 GB for Terraform state/cache
+- Network: Internet connection required
+
+### Shell
+- Bash 4.0+ or Zsh 5.0+
+- Scripts tested on macOS zsh and Linux bash
+
+## Network Requirements
+
+### Outbound Access Required To:
+- terraform.io (Terraform provider registry)
+- github.com (Terragrunt, modules)
+- aws.amazon.com (AWS API endpoints)
+- releases.hashicorp.com (Terraform downloads)
+
+### Ports
+- Outbound HTTPS (443): Required for AWS API calls
+- Outbound HTTP (80): Optional, for testing
+
+## Installation Verification Script
+
+Run this script to verify all requirements:
+
+```bash
+#!/bin/bash
+
+echo "Checking requirements..."
+
+check_command() {
+    if command -v $1 &> /dev/null; then
+        VERSION=$($1 --version 2>&1 | head -n 1)
+        echo "✓ $1: $VERSION"
+        return 0
+    else
+        echo "✗ $1: NOT FOUND"
+        return 1
+    fi
+}
+
+check_command terraform
+check_command terragrunt
+check_command aws
+check_command jq
+check_command git
+
+echo ""
+echo "Checking AWS credentials..."
+if aws sts get-caller-identity &> /dev/null; then
+    echo "✓ AWS credentials configured"
+    aws sts get-caller-identity --query 'Account' --output text | xargs echo "  Account ID:"
+else
+    echo "✗ AWS credentials not configured"
+fi
+```
+
+## Support
+
+For issues with:
+- Terraform: https://github.com/hashicorp/terraform/issues
+- Terragrunt: https://github.com/gruntwork-io/terragrunt/issues
+- AWS CLI: https://github.com/aws/aws-cli/issues
+- This project: See README.md troubleshooting section
+

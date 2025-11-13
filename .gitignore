@@ -1,0 +1,40 @@
+# Terraform
+*.tfstate
+*.tfstate.*
+*.tfvars
+!terraform.tfvars.example
+.terraform/
+.terraform.lock.hcl
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# Terragrunt
+.terragrunt-cache/
+**/terragrunt-debug.tfvars.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# SSH Keys
+*.pem
+*.ppk
+id_rsa*
+*.key
+
+# Logs
+*.log
+
+# OS
+Thumbs.db
+

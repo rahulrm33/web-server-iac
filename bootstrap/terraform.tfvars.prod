@@ -1,0 +1,12 @@
+# Bootstrap Configuration for Production (Shared for all prod regions)
+# This creates ONE bucket and ONE DynamoDB table for all prod regions
+# Each prod region stores its state in a different directory
+
+project_name = "web-loadbalancer"
+environment  = "prod"  # Shared across all prod regions!
+aws_region   = "us-east-1"  # Bucket location (primary region)
+
+# Production settings
+enable_point_in_time_recovery = true   # Enable for production
+enable_monitoring              = true  # Enable for production
+
